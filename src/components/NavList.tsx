@@ -1,7 +1,9 @@
 import { FC, useState } from 'react';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 import { TypedIcon } from 'typed-design-system';
 import { BsPencil, BsTrash3 } from 'react-icons/bs'
+import { SET_URL_ID, SET_URL } from '../redux/ActionTypes';
 
 const List = styled.div`
   width: 260px;
@@ -56,21 +58,28 @@ const IconWrapper = styled.div`
 `;
 
 interface NavListProps {
-  urlItem: string;
+  rsUrl: string;
+  rsUrlId: number;
 }
 
-const NavList: FC<NavListProps> = ({ urlItem }) => {
+const NavList: FC<NavListProps> = ({ rsUrl, rsUrlId }) => {
+  const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const handleListClick = () => {
+    dispatch({ type: SET_URL_ID, payload: rsUrlId });
+    dispatch({ type: SET_URL, payload: rsUrl });
+  }
 
   return (
     <>
-      <List>
+      <List onClick={handleListClick}>
         <ListUrl>
           {
             isEditing ? (
-              <input type='text' value={ urlItem } />
+              <input type='text' value={ rsUrl } />
             ) : (
-              urlItem
+              rsUrl
             )
           }
         </ListUrl>

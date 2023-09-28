@@ -41,6 +41,13 @@ const NavBtn = styled.button`
   font-weight: 400;
   line-height: 14.06px;
   cursor: pointer;
+
+  label {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14.06px;
+    cursor: pointer;
+  }
 `;
 
 const UrlInput = styled.div`
@@ -72,7 +79,7 @@ interface UrlList {
 }
 
 const Nav: FC = () => {
-  const [url, setUrl] = useState<string>('');
+  const [resourceUrl, setResourceUrl] = useState<string>('');
   const [isUrlBtn, setIsUrlBtn] = useState<boolean>(false);
   const [urlList, setUrlList] = useState<UrlList[]>([
     { id: 0, url: "https://www.robinwieruch.de/react-libraries/" },
@@ -94,17 +101,46 @@ const Nav: FC = () => {
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      if(!url.startsWith('http://') && !url.startsWith('https://')) {
+      if(!resourceUrl.startsWith('http://') && !resourceUrl.startsWith('https://')) {
         Toast.fire({
           icon: 'error',
           title: 'URL은 "https://" 또는 "http://"로 시작해야 합니다..'
         })
         return;
       }
-      setUrlList((prevData) => [...prevData, { id: urlId, url: url}]);
-      setUrl('');
-      setIsUrlBtn(false);
-      setUrlId((prevData) => prevData + 1);
+
+      let finalUrl = resourceUrl;
+      const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+
+      if (youtubeRegex.test(resourceUrl)) {
+        const url = new URL(resourceUrl);
+        const videoId = url.searchParams.get('v');
+        if (videoId) {
+          finalUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      const delay = Math.random() * 700 + 300;
+
+      setTimeout(() => {
+        if (Math.random() <= 0.8) {
+          setUrlList((prevData) => [...prevData, { id: urlId, url: finalUrl}]);
+          setResourceUrl('');
+          setIsUrlBtn(false);
+          setUrlId((prevData) => prevData + 1);
+    
+          Toast.fire({
+            icon: 'success',
+            title: 'URL이 추가되었습니다.'
+          })
+        } else {
+          // 20% 확률로 실패
+          Toast.fire({
+            icon: 'error',
+            title: 'URL 추가에 실패하였습니다. 다시 시도해주세요.'
+          })
+        }
+      }, delay);
     }
   }
 
@@ -112,11 +148,14 @@ const Nav: FC = () => {
     <NavWrap>
       <NavHeader>
         <NavBtn className='url-btn' onClick={() => setIsUrlBtn(!isUrlBtn)}>URL 추가</NavBtn>
-        <NavBtn>이미지 추가</NavBtn>
+        <NavBtn>
+          <label htmlFor='image-upload'>이미지 추가</label>
+          <input type='file' id='image-upload' accept='image/jpeg, image/png' multiple hidden />
+        </NavBtn>
         {
           isUrlBtn && (
             <UrlInput>
-              <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} onKeyPress={handleKeyPress} placeholder='https://' />
+              <input type="text" value={resourceUrl} onChange={(e) => setResourceUrl(e.target.value)} onKeyPress={handleKeyPress} placeholder='https://' />
             </UrlInput>
           )
         }
@@ -125,7 +164,7 @@ const Nav: FC = () => {
         {
           urlList.map((item) => {
             return (
-              <NavList urlItem={item.url} key={item.id} />
+              <NavList rsUrl={item.url} rsUrlId={item.id} key={item.id} />
             )
           })
         }
