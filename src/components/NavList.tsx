@@ -1,8 +1,7 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { TypedIcon } from 'typed-design-system';
 import { BsPencil, BsTrash3 } from 'react-icons/bs'
-import { jsx } from '@emotion/react';
 
 const List = styled.div`
   width: 260px;
@@ -14,6 +13,7 @@ const List = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  cursor: pointer;
 `;
 
 const ListUrl = styled.div`
@@ -27,6 +27,19 @@ const ListUrl = styled.div`
   text-overflow: ellipsis;
   -webkit-line-clamp: 2; // 표시할 최대 라인 수
   -webkit-box-orient: vertical;
+
+  input {
+    width: 100%;
+    height: 30px;
+    box-sizing: border-box;
+    border: 1px solid #38A5E1;
+    border-radius: 3px;
+    outline: none;
+
+    &:focus {
+      outline: none;
+    }
+  }
 `;
 
 
@@ -42,25 +55,27 @@ const IconWrapper = styled.div`
   }
 `;
 
+interface NavListProps {
+  urlItem: string;
+}
 
-const NavList: FC = () => {
+const NavList: FC<NavListProps> = ({ urlItem }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   return (
     <>
       <List>
         <ListUrl>
-          https://lallalalaallaaalalaaalalaaalaaalalalaalalkfajlkflajflkajskdjflajsdlfasdsdfs
+          {
+            isEditing ? (
+              <input type='text' value={ urlItem } />
+            ) : (
+              urlItem
+            )
+          }
         </ListUrl>
         <IconWrapper>
-          <BsPencil className='edit_small' />
-          <BsTrash3 className='trash_small' />
-        </IconWrapper>
-      </List>
-      <List>
-        <ListUrl>
-          https://lallalalaallaaalalaaalalaaalaa...
-        </ListUrl>
-        <IconWrapper>
-          <BsPencil className='edit_small' />
+          <BsPencil className='edit_small' onClick={() => setIsEditing(!isEditing)} />
           <BsTrash3 className='trash_small' />
         </IconWrapper>
       </List>
