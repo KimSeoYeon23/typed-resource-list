@@ -6,6 +6,7 @@ const NavWrap = styled.nav`
   width: 280px;
   height: 100vh;
   border: 1px solid #c4c4c4;
+  box-sizing: border-box;
 `;
 
 const NavHeader = styled.div`
@@ -20,11 +21,12 @@ const NavHeader = styled.div`
 `;
 
 const NavBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 30px;
+  display: grid;
+  grid-template-rows: 1fr;
+  gap: 15px;
+  margin-top: 15px;
+  padding: 0 10px;
+  box-sizing: border-box;
 `;
 
 const NavBtn = styled.button`

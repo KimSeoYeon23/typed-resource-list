@@ -18,12 +18,17 @@ const List = styled.div`
 
 const ListUrl = styled.div`
   width: 100%;
-  height: 30px;
   font-size: 14px;
   font-weight: 400;
-  display: flex;
+  display: -webkit-box;
   align-items: center;
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2; // 표시할 최대 라인 수
+  -webkit-box-orient: vertical;
 `;
+
 
 const IconWrapper = styled.div`
   display: flex;
@@ -40,15 +45,26 @@ const IconWrapper = styled.div`
 
 const NavList: FC = () => {
   return (
-    <List>
-      <ListUrl>
-        https://lallalalaallaaalala.com
-      </ListUrl>
-      <IconWrapper>
-        <BsPencil className='edit_small' />
-        <BsTrash3 className='trash_small' />
-      </IconWrapper>
-    </List>
+    <>
+      <List>
+        <ListUrl>
+          https://lallalalaallaaalalaaalalaaalaaalalalaalalkfajlkflajflkajskdjflajsdlfasdsdfs
+        </ListUrl>
+        <IconWrapper>
+          <BsPencil className='edit_small' />
+          <BsTrash3 className='trash_small' />
+        </IconWrapper>
+      </List>
+      <List>
+        <ListUrl>
+          https://lallalalaallaaalalaaalalaaalaa...
+        </ListUrl>
+        <IconWrapper>
+          <BsPencil className='edit_small' />
+          <BsTrash3 className='trash_small' />
+        </IconWrapper>
+      </List>
+    </>
   );
 };
 
