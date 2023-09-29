@@ -24,19 +24,19 @@ const View = () => {
     <>
       {
         resourceUrl.url !== '' ? (
-          <ViewWrap>
+          <ViewWrap data-testid="view-component">
             <ViewHeader>
               {resourceUrl.url}
-              <AiOutlineClose className='view-close' onClick={handleClose} />
+              <AiOutlineClose data-testid="close-button" className='view-close' onClick={handleClose} />
             </ViewHeader>
             <Viewer src={resourceUrl.url}>
             </Viewer> 
           </ViewWrap>
         ) : (
-          <ViewWrap>
+          <ViewWrap data-testid="view-component">
             <ViewHeader>
               {resourceUrl.imageName}
-              <AiOutlineClose className='view-close' onClick={handleClose} />
+              <AiOutlineClose data-testid="close-button" className='view-close' onClick={handleClose} />
             </ViewHeader>
             <ViewerImage src={resourceUrl.image} />
           </ViewWrap>
