@@ -1,7 +1,156 @@
-import { FC, useState, KeyboardEvent } from 'react';
+import { FC, useState, KeyboardEvent, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import Swal from 'sweetalert2';
 import NavList from './NavList';
+import UrlInput from './UrlInput';
+import { TOAST_SETTINGS, MESSAGES } from './constants/constants';
+
+interface ResourceList {
+  id: number;
+  url: string;
+  image: string;
+  imageName: string;
+}
+
+const Nav: FC = () => {
+  const [resourceUrl, setResourceUrl] = useState<string>('');
+  const [isUrlBtn, setIsUrlBtn] = useState<boolean>(false);
+  const [resourceList, setResourceList] = useState<ResourceList[]>([
+    { id: 0, url: "https://www.robinwieruch.de/react-libraries/", image: '', imageName: '' },
+    { id: 1, url: "https://typed.do/blog-kr/how-to-make-good-usability-product/", image: '', imageName: '' }
+  ]);
+  const [urlId, setUrlId] = useState<number>(resourceList[1].id + 1);
+
+  const Toast = Swal.mixin(TOAST_SETTINGS)
+
+  const validateUrl = (url: string): boolean => url.startsWith('http://') || url.startsWith('https://');
+
+  const isYoutubeUrl = (url: string): boolean => /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/.test(url);
+
+  const getYoutubeEmbedUrl = (url: string): string => {
+    const urlObj = new URL(url);
+    const videoId = urlObj.searchParams.get('v');
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  }
+
+  const handleResourceUpload = (e: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>) => {
+    if ('key' in e) {
+      if (e.key === 'Enter') {
+        if (!validateUrl(resourceUrl)) {
+          Toast.fire({ icon: 'error', title: MESSAGES.invalidUrl });
+          return;
+        }
+        const finalUrl = isYoutubeUrl(resourceUrl) ? getYoutubeEmbedUrl(resourceUrl) : resourceUrl;
+        const delay = Math.random() * 700 + 300;
+  
+        setTimeout(() => {
+          if (Math.random() <= 0.8) {
+            setResourceList((prevData) => [...prevData, { id: urlId, url: finalUrl, image: '', imageName: '' }]);
+            setResourceUrl('');
+            setIsUrlBtn(false);
+            setUrlId((prevData) => prevData + 1);
+      
+            Toast.fire({
+              icon: 'success',
+              title: MESSAGES.successUrl
+            })
+          } else {
+            // 20% 확률로 실패
+            Toast.fire({
+              icon: 'error',
+              title: MESSAGES.failureUrl
+            })
+          }
+        }, delay);
+      }
+    } else {
+      const files = e.target.files;
+      if (files) {
+        Array.from(files).forEach((file) => {
+          // 파일 유형 확인
+          if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            Toast.fire({
+              icon: 'error',
+              title: file.name + MESSAGES.invalidImage,
+            });
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => {
+            const delay = Math.random() * 700 + 300;
+            setTimeout(() => {
+              if (Math.random() <= 0.8) {
+                setResourceList((prevData) => [...prevData, { id: urlId, url: '', image: reader.result as string, imageName: file.name }]);
+                setUrlId((prevData) => prevData + 1);
+        
+                Toast.fire({
+                  icon: 'success',
+                  title: file.name + MESSAGES.successImage,
+                });
+              } else {
+                Toast.fire({
+                  icon: 'error',
+                  title: file.name + MESSAGES.failureImage,
+                });
+              }
+            }, delay);
+          };
+        });
+      }
+    }
+  }
+
+  const handleDelete = (id: number) => {
+    if (id === 0 || id === 1) {
+      Toast.fire({
+        icon: 'error',
+        title: '기본 URL은 삭제할 수 없습니다.'
+      })
+      return;
+    }
+    setResourceList(prev => prev.filter(item => item.id !== id));
+  }
+
+  const handleUrlChange = (id: number, newName: string) => {
+    setResourceList(prevList => prevList.map(item => item.id === id ? { ...item, url: newName } : item));
+  };
+  
+
+  return (
+    <NavWrap>
+      <NavHeader>
+        <NavBtn className='url-btn' onClick={() => setIsUrlBtn(!isUrlBtn)}>URL 추가</NavBtn>
+        <NavBtn>
+          <label htmlFor='image-upload'>이미지 추가</label>
+          <input type='file' id='image-upload' accept='image/jpeg, image/png' multiple hidden onChange={handleResourceUpload} />
+        </NavBtn>
+        {
+          isUrlBtn && (
+            <UrlInput 
+              value={resourceUrl} 
+              onChange={(e) => setResourceUrl(e.target.value)} 
+              onKeyPress={(e) => handleResourceUpload(e)}
+            />
+          )
+        }
+      </NavHeader>
+      <NavBody>
+        {
+          resourceList.map((item) => {
+            return (
+              <NavList rsUrl={item.url} rsUrlId={item.id} image={item.image} imageName={item.imageName} onDelete={handleDelete} onUrlChange={handleUrlChange} key={item.id} />
+            )
+          })
+        }
+      </NavBody>
+    </NavWrap>
+  );
+};
+
+export default Nav;
+
 
 const NavWrap = styled.nav`
   width: 280px;
@@ -49,129 +198,3 @@ const NavBtn = styled.button`
     cursor: pointer;
   }
 `;
-
-const UrlInput = styled.div`
-  position: absolute;
-  top: 45px;
-  width: 260px;
-  background-color: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 5px;
-  padding: 5px;
-  box-sizing: border-box;
-
-  input {
-    width: 100%;
-    padding: 5px;
-    box-sizing: border-box;
-    border: 1px solid #38A5E1;
-    border-radius: 3px;
-    
-    &:focus {
-      outline: none;
-    }
-  }
-`;
-
-interface UrlList {
-  id: number;
-  url: string;
-}
-
-const Nav: FC = () => {
-  const [resourceUrl, setResourceUrl] = useState<string>('');
-  const [isUrlBtn, setIsUrlBtn] = useState<boolean>(false);
-  const [urlList, setUrlList] = useState<UrlList[]>([
-    { id: 0, url: "https://www.robinwieruch.de/react-libraries/" },
-    { id: 1, url: "https://typed.do/blog-kr/how-to-make-good-usability-product/" }
-  ]);
-  const [urlId, setUrlId] = useState<number>(urlList[1].id + 1);
-
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
-    }
-  })
-
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      if(!resourceUrl.startsWith('http://') && !resourceUrl.startsWith('https://')) {
-        Toast.fire({
-          icon: 'error',
-          title: 'URL은 "https://" 또는 "http://"로 시작해야 합니다..'
-        })
-        return;
-      }
-
-      let finalUrl = resourceUrl;
-      const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-
-      if (youtubeRegex.test(resourceUrl)) {
-        const url = new URL(resourceUrl);
-        const videoId = url.searchParams.get('v');
-        if (videoId) {
-          finalUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-      }
-
-      const delay = Math.random() * 700 + 300;
-
-      setTimeout(() => {
-        if (Math.random() <= 0.8) {
-          setUrlList((prevData) => [...prevData, { id: urlId, url: finalUrl}]);
-          setResourceUrl('');
-          setIsUrlBtn(false);
-          setUrlId((prevData) => prevData + 1);
-    
-          Toast.fire({
-            icon: 'success',
-            title: 'URL이 추가되었습니다.'
-          })
-        } else {
-          // 20% 확률로 실패
-          Toast.fire({
-            icon: 'error',
-            title: 'URL 추가에 실패하였습니다. 다시 시도해주세요.'
-          })
-        }
-      }, delay);
-    }
-  }
-
-  return (
-    <NavWrap>
-      <NavHeader>
-        <NavBtn className='url-btn' onClick={() => setIsUrlBtn(!isUrlBtn)}>URL 추가</NavBtn>
-        <NavBtn>
-          <label htmlFor='image-upload'>이미지 추가</label>
-          <input type='file' id='image-upload' accept='image/jpeg, image/png' multiple hidden />
-        </NavBtn>
-        {
-          isUrlBtn && (
-            <UrlInput>
-              <input type="text" value={resourceUrl} onChange={(e) => setResourceUrl(e.target.value)} onKeyPress={handleKeyPress} placeholder='https://' />
-            </UrlInput>
-          )
-        }
-      </NavHeader>
-      <NavBody>
-        {
-          urlList.map((item) => {
-            return (
-              <NavList rsUrl={item.url} rsUrlId={item.id} key={item.id} />
-            )
-          })
-        }
-      </NavBody>
-    </NavWrap>
-  );
-};
-
-export default Nav;
-
