@@ -32,7 +32,8 @@ interface UrlInputProps {
 
 const UrlInput: FC<UrlInputProps> = ({ value, onChange, onKeyPress }) => (
   <StyledUrlInput>
-    <input 
+    <input
+      data-testid="url-input"
       type="text" 
       value={value} 
       onChange={onChange} 

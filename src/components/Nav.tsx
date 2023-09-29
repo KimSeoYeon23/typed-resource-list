@@ -1,6 +1,7 @@
 import { FC, useState, KeyboardEvent, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import NavList from './NavList';
 import UrlInput from './UrlInput';
 import { TOAST_SETTINGS, MESSAGES } from './constants/constants';
@@ -20,8 +21,9 @@ const Nav: FC = () => {
     { id: 1, url: "https://typed.do/blog-kr/how-to-make-good-usability-product/", image: '', imageName: '' }
   ]);
   const [urlId, setUrlId] = useState<number>(resourceList[1].id + 1);
+  const MySwal = withReactContent(Swal);
 
-  const Toast = Swal.mixin(TOAST_SETTINGS)
+  const Toast = MySwal.mixin(TOAST_SETTINGS)
 
   const validateUrl = (url: string): boolean => url.startsWith('http://') || url.startsWith('https://');
 
@@ -128,7 +130,7 @@ const Nav: FC = () => {
         </NavBtn>
         {
           isUrlBtn && (
-            <UrlInput 
+            <UrlInput
               value={resourceUrl} 
               onChange={(e) => setResourceUrl(e.target.value)} 
               onKeyPress={(e) => handleResourceUpload(e)}
