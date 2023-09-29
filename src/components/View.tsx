@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { AiOutlineClose } from 'react-icons/ai';
+import { TypedIcon } from 'typed-design-system';
 import { SET_RESOURCE_ID, SET_URL, SET_IMAGE, SET_IMAGE_NAME } from '../redux/ActionTypes';
 
 const View = () => {
@@ -27,7 +27,9 @@ const View = () => {
           <ViewWrap data-testid="view-component">
             <ViewHeader>
               {resourceUrl.url}
-              <AiOutlineClose data-testid="close-button" className='view-close' onClick={handleClose} />
+              <Button onClick={handleClose}>
+                <TypedIcon icon='close_19' style={{ fontSize: '19px' }} />
+              </Button>
             </ViewHeader>
             <Viewer src={resourceUrl.url}>
             </Viewer> 
@@ -36,7 +38,9 @@ const View = () => {
           <ViewWrap data-testid="view-component">
             <ViewHeader>
               {resourceUrl.imageName}
-              <AiOutlineClose data-testid="close-button" className='view-close' onClick={handleClose} />
+              <Button onClick={handleClose}>
+                <TypedIcon icon='close_19' style={{ fontSize: '19px' }} />
+              </Button>
             </ViewHeader>
             <ViewerImage src={resourceUrl.image} />
           </ViewWrap>
@@ -89,3 +93,9 @@ const ViewerImage = styled.img`
   height: calc(100vh - 50px);
   object-fit: contain;
 `;
+
+const Button = styled.button`
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+`
