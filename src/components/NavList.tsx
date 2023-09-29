@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 import { TypedIcon } from 'typed-design-system';
 import { BsPencil, BsTrash3 } from 'react-icons/bs'
@@ -43,8 +43,12 @@ const NavList: FC<NavListProps> = ({ rsUrl, rsUrlId, image, imageName, onDelete,
           }
         </ListUrl>
         <IconWrapper>
-          <BsPencil className='edit_small' onClick={toggleEditing} />
-          <BsTrash3 className='trash_small' onClick={() => onDelete(rsUrlId)} />
+          <Button onClick={toggleEditing}>
+            <TypedIcon icon='edit_19' style={{ fontSize: '19px' }} />
+          </Button>
+          <Button onClick={() => onDelete(rsUrlId)}>
+            <TypedIcon icon='trash_19' style={{ fontSize: '19px' }} />
+          </Button>
         </IconWrapper>
       </List>
     </>
@@ -93,15 +97,13 @@ const ListUrl = styled.div`
   }
 `;
 
-
 const IconWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-
-  .edit_small, .trash_small  {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
 `;
+
+const Button = styled.button`
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+`
